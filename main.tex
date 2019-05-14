@@ -1,0 +1,70 @@
+% KERdoc.tex V1.0, 14 June 2004
+
+\documentclass{KERauth}
+%\usepackage{times}
+
+\begin{document}
+\KER{1}{24}{00}{0}{2004}{S000000000000000}
+
+\runningheads{A. Smith}{A demonstration of The Knowledge
+Engineering Review class file}
+
+%\doublespacing
+
+\title{A Blockchain based Decentralised Booking System}
+
+\author{Naipeng Dong$^1$, Guangdong Bai$^2$, Lung-Chen Huang$^1$, Kok Heng Lim$^1$ and Jin Song Dong$^{1,2}$}
+\address{$^1$SoC, National University of Singapore, ~$^2$Griffith University\\
+\email{dcsdn@nus.edu.sg}}
+
+
+\begin{abstract}
+This 
+\end{abstract}
+
+\section{Introduction}
+The blockchain technology has rapidly emerged in recent years, especially when the concept of smart contract
+was rst introduced to and later relied on the technology. Once The smart contract code is deployed to the
+blockchain, it can be executed by any computer node that keeps the same historical record of transactions as
+other nodes. This makes it diffcult to be compromised with a single node on the network, unlike centralized
+platforms that could be easily breached and prone to the failure of single point. However, decentralized
+platforms are still in its infancy. Although some communities and companies have proposed some use cases
+for the logistics and insurance industry, its use cases are lacking in different domains. To give a more concrete
+example of using the smart contract, we model a fundamental architecture of a decentralized hotel booking
+system with PAT CSP\# in [1], and explore the potential of the system design with assertions of system
+properties in the report.
+
+Most travelers would have hard times nding a hotel room for their next journey. They would possibly
+browse through pages of entries on online travel agencies (OTAs) such as Booking.com or Agoda.com. As
+we can imagine, it is time-consuming that each time a search result appears on the screen, they have to
+delve into the deals one by one, which could be overlapping in the last search results. In order to alleviate
+this monotonous experience, we shall leverage the blockchain technology and allow our search requests to
+be deployed as smart contracts such that the process of discovery is left to the decentralized system, where
+hoteliers can easily match their rooms with the criteria required by a traveler.
+
+Our approach is to provide users with an interface where they can draft their booking request with the
+requirement of a hotel room in a domain-specic language, which is similar to a real contract in a human-
+readable form. Thereafter, the interface compiles the request into a machine-readable form and injects some
+predened functions. Later, the user can deploy the request onto the blockchain. Once the request is visible
+to other nodes, hoteliers can propose offers by invoking a function in the request. When the user is notied
+of new proposals, the interface automatically starts a selection process of the proposals depending on the
+request criteria from the user, showing the matched results. At the end, the user and one of the hoteliers seal
+a deal.
+
+\section{System design}
+To more clearly illustrate the workings of our system, the system sequence diagram below describes
+how travelers and hoteliers interact on the decentralized booking platform.
+
+\section{System modelling}
+User A user could be a traveler or hotelier who sends a transaction by invoking a function that includes
+the address of the user, function name, gas, and gas price. A traveler can invoke Fetch to acquire the latest
+set of proposals submitted by hoteliers, or to Settle for a specic proposal. A hotelier can invoke Propose
+to send their proposals to the request.
+Miner Each miner has its own transaction pool TxPool that continuously receives a new transaction with
+gas greater than zero. Moreover, TxBlock to be executed by a miner also nds the new transactions with
+more than or equal to a specied transaction gasPrice from the pool.
+Request A request deployed by a traveler to the blockchain is a smart contract that accepts proposals
+and can be invoked by the users.
+
+
+\end{document}

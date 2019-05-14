@@ -1,0 +1,263 @@
+% KERdoc.tex V1.0, 14 June 2004
+
+\documentclass{KERauth}
+%\usepackage{times}
+
+\begin{document}
+\KER{1}{24}{00}{0}{2004}{S000000000000000}
+
+\runningheads{A. Smith}{A demonstration of The Knowledge
+Engineering Review class file}
+
+%\doublespacing
+
+\title{A demonstration of the \LaTeXe\
+class file for\\ \itshape{The Knowledge Engineering
+Review}\footnote{Please ensure that you have the most up to date
+class file. This is available from\\
+\texttt{ftp://ftp.cup.cam.ac.uk/pub/texarchive/journals/latex/}}}
+
+\author{ALISTAIR SMITH}
+
+\address{Sunrise Setting Ltd, 12a Fore Street, St.~Marychurch,
+Torquay, Devon, TQ1~4NE, UK\\
+\email{alistair.smith@sunrise-setting.co.uk}}
+
+\begin{abstract}
+This short note describes the use of the \LaTeXe\ \textsf{KERauth.cls}
+class file for setting papers for \emph{The Knowledge Engineering
+Review} published by Cambridge University Press.
+\end{abstract}
+
+\section{Introduction}
+Many authors submitting to research journals now use \LaTeXe\ to
+prepare their papers and supply a copy of their code to the
+publishers. Here we describe the \textsf{KERauth.cls} class file
+which can be used to convert articles produced with other \LaTeXe\
+class files into a form similar to that used to publish
+\emph{The Knowledge Engineering Review}.
+
+The \textsf{KERauth.cls} class file preserves much of the standard
+\LaTeXe\ interface so that any document which was produced using
+the standard \LaTeXe\ \textsf{article} style can easily be
+converted to work with the \textsf{KER} style. However, the width
+of text and typesize may vary from that of \emph{article};
+therefore \emph{line breaks will change} and it is possible that
+any tabular material, computer listings and displayed mathematics
+may need resetting.
+
+In the following sections we describe how to lay out your code to
+use \textsf{KERauth.cls} to reproduce the typographical look of the
+\emph{Journal}. However, this note is not a guide to using
+\LaTeXe\ and we would refer you to any of the many books available
+(see, for example, Goossens \emph{et~al.} (1994), Kopka
+\& Daly (1995) and Lamport (1994)).
+
+In addition, you should consult the editorial office for more general
+instructions about submission and preparation of your paper.
+
+\section{The three golden rules}
+Before we proceed, we would like to stress \emph{three golden rules}
+that need to be followed to enable the most efficient use of your code
+at the typesetting stage:
+\begin{enumerate}
+\item[(i)] keep your own macros to an absolute minimum;
+\item[(ii)] avoid inserting extra horizontal and vertical spacing (except in
+accepted cases, such as using \verb"\," before a differential~d or \verb"\quad"
+to separate an equation from its qualifier);
+\item[(iii)] follow \emph{The Knowledge Engineering Review} reference
+style (see a recent copy, post the 2003 volume).
+\end{enumerate}
+
+\section{Getting started}
+The \textsf{KERauth} class file should run on any standard \LaTeXe\
+installation: simply place \textsf{KERauth.cls} in your system's usual
+directory (do not forget to rebuild the ls-R database files if
+required by your \TeX\ distribution!).
+
+If any of the fonts, class files or packages it requires are
+missing from your installation, they can be found on the
+\emph{\TeX\ Live} CD-ROMs or from CTAN.
+
+The \emph{Journal} is published using Times fonts, but as some
+authors will not have these installed on their local \TeX\
+systems, \textsf{KERauth.cls} uses Computer Modern fonts by
+default. If you have Times fonts installed, you need only
+uncomment the line \verb"%\usepackage{times}"
+in the article header.
+
+\section{The article header information}
+The heading for any file using \textsf{KERauth.cls} is:
+
+\begin{verbatim}
+\documentclass{KERauth}
+%\usepackage{times}
+
+\begin{document}
+\KER{<First page>}{<last page>}{00}{0}{2004}{S000000000000000}
+
+\runningheads{<Initials and surname>}{<Short title>}
+
+%\doublespacing
+
+\title{<Minimal use of capitals>}
+
+\author{AN AUTHOR\affilnum{1},
+SOMEONE ELSE\affilnum{2} and
+PERHAPS ANOTHER\affilnum{1}}
+
+\address{\affilnum{1}First author's address
+(in this example it is the same as the third author)\\
+\email{First and third authors email addresses}\\
+\affilnum{2}Second author's address\\
+\email{second author's email address}}
+
+\begin{abstract}
+<Text>
+\end{abstract}
+
+\section{Introduction}
+.
+.
+.
+\end{verbatim}
+
+\subsection{Remarks}
+\begin{enumerate}
+\item[(i)] In \verb"\runningheads", keep the short title and the
+authors' details to no more than 50 characters each; use
+`\emph{et~al.}' if more than two authors.
+
+\item[(ii)]
+Note the use of \verb"\affil" and \verb"\affilnum"
+to link names and addresses.
+
+\item[(iii)] Avoid explicit reference citations and displayed
+mathematics in the abstract.
+
+
+\item[(iv)] For submitting a double-spaced manuscript, uncomment
+\verb"%\doublespacing"
+
+\end{enumerate}
+
+\section{The body of the article}
+
+\subsection{Section headings}
+Articles are normally divided into sections and possibly
+subsections and subsubsections. The command
+\verb"\section{<title>}" is used to start a section and
+\verb"\subsection{<title>}" a subsection. An unnumbered section is
+obtained by adding an asterisk before the opening brace.
+
+An Acknowledgement section is started with \verb"\acks" or
+\verb"\ack" for \textit{Acknowledgements} or
+\textit{Acknowledgement}, respectively. They appear just before
+the references and any appendices.
+
+\subsection{Mathematics}
+\textsf{KERauth.cls} makes the full functionality of \AmS\/\TeX\
+available. We encourage the use of the \verb"align", \verb"gather"
+and \verb"multline" environments for displayed mathematics.
+
+\subsection{Figures}
+\textsf{KERauth.cls} uses the \textsf{graphicx} package for handling
+figures.  The default device driver is \textsf{dvips}. You may
+need to specify a different option in the \verb"\documentclass"
+line to match your system. For example,
+\verb+\documentclass[dvipsone]{KERauth}+
+
+Figures are called in as follows:
+\begin{verbatim}
+\begin{figure}
+\centering
+\includegraphics[<width=??pc>]{<figure eps name>}
+\caption{<Figure caption>}
+\end{figure}
+\end{verbatim}
+
+For further details on how to size figures etc. with the
+\textsf{graphicx} package, see, for example, Goossens
+\emph{et~al.} (1994) and Kopka \& Daly (1995). If figures are
+available in an acceptable format (for example, .eps,~.ps) they
+will be used but a printed version should always be provided.
+
+\subsection{Tables}
+\textsf{KERauth.cls} uses the \textsf{booktabs} package to
+enhance the appearance of tables.
+
+The standard coding for a table is:
+\begin{verbatim}
+\begin{table}
+\caption{<Table caption>}
+\begin{center}
+\begin{small}
+\begin{tabular}{<table alignment>}
+\toprule
+<column headings>\\
+\midrule
+<table entries (separated by & as usual)\\
+<table entries>\\
+\bottomrule
+\end{tabular}
+\end{small}
+\end{center}
+\end{table}
+\end{verbatim}
+
+\subsection{Cross-referencing}
+The use of the \LaTeX\ cross-reference system
+for figures, tables, equations, etc, is encouraged
+(using \verb"\ref{<name>}" and \verb"\label{<name>}").
+
+\subsection{References}
+References should follow the Harvard (name/date) system and the
+reference list at the end of the paper should be in
+\emph{alphabetical order}.
+For the general reference style, see a recent copy (post the 2003
+volume) of the journal.
+
+The commands for the Harvard-style reference list are:
+\begin{verbatim}
+\begin{thebibliography}
+\item
+<Your reference>
+
+\item
+<Your reference>
+.
+.
+.
+\end{thebibliography}
+\end{verbatim}
+
+\section{The last word}
+That really is all you should need to know to prepare your paper
+using \textsf{KERauth.cls}.
+You do, of course, have the option to call in any of your
+favourite packages for setting maths, graphics, tabular material,
+computer listings, etc.
+
+\subsection{Support for \textsf{KERauth.cls}}
+We offer on-line support to participating authors. Please
+contact us via email at\\
+\texttt{alistair.smith@sunrise-setting.co.uk}\\
+We would welcome any feedback, positive or otherwise, on your
+experiences of using \textsf{KERauth.cls}.
+
+\begin{thebibliography}
+\item
+Goossens,~M., Mittelbach,~F. \& Samarin,~A. 1994 \emph{The \LaTeX\ Companion}.
+Addison-Wesley.
+
+\item
+Kopka,~H. \& Daly,~P.~W. 1995 \emph{A Guide to \LaTeXe:
+Document Preparation for Beginners and Advanced Users}, 2nd~edn.
+Addison-Wesley.
+
+\item
+Lamport,~L. 1994 \emph{\LaTeX: a Document Preparation System}, 2nd~edn.                             % Title (edition).
+Addison-Wesley.
+\end{thebibliography}
+
+\end{document}
