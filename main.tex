@@ -6,16 +6,15 @@
 \begin{document}
 \KER{1}{24}{00}{0}{2004}{S000000000000000}
 
-\runningheads{A. Smith}{A demonstration of The Knowledge
-Engineering Review class file}
+\runningheads{A. Smith}{A demonstration of The Knowledge Engineering Review class file}
 
 %\doublespacing
 
 \title{A Blockchain based Decentralised Booking System}
 
-\author{Naipeng Dong$^1$, Guangdong Bai$^2$, Lung-Chen Huang$^1$, Kok Heng Lim$^1$ and Jin Song Dong$^{1,2}$}
-\address{$^1$SoC, National University of Singapore, ~$^2$Griffith University\\
-\email{dcsdn@nus.edu.sg}}
+\author{Naipeng Dong$^1$, Guangdong Bai$^2$, Lung-Chen Huang$^3$, Kok Heng Lim$^4$ and Jin Song Dong$^{5}$}
+\address{$^{1,3,4,5}$School of Computing, National University of Singapore, COM$1$, $13$ Computing Drive, $117417$, Singapore\\ ~$^{2,5}$School of Information and Communication Technology, Griffith University, N$44$ $2.28$, $170$ Kessels Road Nathan, QLD, $4111$, Australia\\
+\email{$^1$dcsdn@nus.edu.sg}, $^2$}
 
 
 \begin{abstract}
@@ -24,14 +23,14 @@ This
 
 \section{Introduction}
 The blockchain technology has rapidly emerged in recent years, especially when the concept of smart contract
-was rst introduced to and later relied on the technology. Once The smart contract code is deployed to the
+was first introduced to and later relied on the technology. Once The smart contract code is deployed to the
 blockchain, it can be executed by any computer node that keeps the same historical record of transactions as
 other nodes. This makes it diffcult to be compromised with a single node on the network, unlike centralized
 platforms that could be easily breached and prone to the failure of single point. However, decentralized
 platforms are still in its infancy. Although some communities and companies have proposed some use cases
 for the logistics and insurance industry, its use cases are lacking in different domains. To give a more concrete
 example of using the smart contract, we model a fundamental architecture of a decentralized hotel booking
-system with PAT CSP\# in [1], and explore the potential of the system design with assertions of system
+system with PAT CSP\# in~\cite{pat}, and explore the potential of the system design with assertions of system
 properties in the report.
 
 Most travelers would have hard times nding a hotel room for their next journey. They would possibly
@@ -51,6 +50,12 @@ of new proposals, the interface automatically starts a selection process of the 
 request criteria from the user, showing the matched results. At the end, the user and one of the hoteliers seal
 a deal.
 
+\section{Background}
+
+\subsection{CSP\#}
+
+\subsection{EVM}
+
 \section{System design}
 To more clearly illustrate the workings of our system, the system sequence diagram below describes
 how travelers and hoteliers interact on the decentralized booking platform.
@@ -66,5 +71,8 @@ more than or equal to a specied transaction gasPrice from the pool.
 Request A request deployed by a traveler to the blockchain is a smart contract that accepts proposals
 and can be invoked by the users.
 
+\section{System implementation}
+
+\section{Conclusions}
 
 \end{document}
