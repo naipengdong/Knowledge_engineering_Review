@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>This is the Hotel View!!</h1>
+
+<p>JavaScript can change the content of an HTML element:</p>
+
+<button type="button" onclick="myFunction()">Click Me!</button>
+
+<TABLE border = "1">
+<tr> <th > Manager Set Contract Panel</th><th >Seal Data</th><th >Unseal Data</th><th>Who Has accessed</th></tr>
+<tr><td >
+
+<p id="demo">This is a demonstration.</p>
+
+<p id="balance">Balance</p>
+
+<p id="blockNum">Block Number</p>
+
+<p id="xvalue">123</p>
+
+
+<select  onchange="f_Set2ContractPackage()" name="contract2Use" id="select_path">
+  <option value="hotelProp1">Package 1</option>
+  <option value="hotelProp2">Package 2</option>
+</select>
+<button type="button" onclick="f_Set2ContractPackage()">Set Contract</button>
+
+<button type="button" onclick="f_Talk2Contract()">Set Contract old</button>
+<p id="setContract">---</p>
+
+Manager Name: <input type="text" name="lname" id="setManagerName"><BR>
+Required Deposit (for damages): <input type="text" name="lname1" id="setRequiredDepositName"><BR>
+Denomination of currency: <input type="text" name="lname2" id="setCurrencyDenomination"><BR>
+Package Price: <input type="text" name="lname3" id="setPackagePrice"><BR>
+Number of Days: <input type="text" name="lname4" id="setNumofDays"><BR>
+Number and type of Rooms: <input type="text" name="lname5" id="setNumAndTypeOfRooms"><BR>
+Early Bird Discount (Quantum): <input type="text" name="lname6" id="setEarlyBirdDiscount"><BR>
+Early Bird End Date (DD/MM/YYYY): <input type="text" name="lname7" id="setEarlyBirdEndDate"><BR>
+<button type="button" onclick="set()">Set Value</button>
+<p id="setVal">---</p>
+
+
+<button type="button" onclick="get()">Get Value</button>
+<p id="getVal">---</p>
+
+
+</td>
+
+<td>
+
+
+  UserID:<br>
+  <input type="text" id="SEALuserID" value=""><br>
+  Secret Message:<br>
+  <input type="text" id="SEALsecretMsg" value=""><br><br>
+  <button type="button" onclick="formSealSecret()" >Seal</button>
+
+<p id="sealVal">---</p>
+
+
+
+<button type="button" onclick="getstoredSecretData()">Get Value storedSecretData</button>
+<p id="getValstoredSecretData">---</p>
+
+</td>
+
+</td><td>
+
+  UserID:<br>
+  <input type="text" id="UNSEALuserID" value=""><br>
+
+  <button type="button" onclick="formUnsealSecret()" >UnSeal</button><br>
+
+  <button type="button" onclick="getstoredSecretData2()">Get Value storedSecretData</button>
+<p id="getValstoredSecretData2">---</p>
+
+
+</td>
+
+
+
+
+
+<td>
+
+  StartBlock<br>
+  <input type="text" id="startBlockNumba" value=""><br>
+    EndBlock<br>
+  <input type="text" id="endBlockNumba" value=""><br>
+    Account<br>
+  <input type="text" id="accountID" value=""><br>
+
+<button type="button" onclick="accessLog()" >Go!</button>
+<BR>Status:
+<p id="Status">---</p>
+<BR>AccessLog:
+<p id="AccessLog">---</p>
+<BR>TransactionLog (RAW):
+<p id="TransactionLog">---</p>
+</td>
+
+</tr>
+
+</TABLE>
+
+<script>
+
+var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8543"));
+
+var minerAccount = "0xfdd7aa0b1bcbb77df50b9ef2a5559808d07396d7";
+
+
+var contract = "";
+
+var contractReadable = ""; //either package1 or package2
+
+var test = web3.toAscii("0xbb7306b8000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e000000000000000000000000000000000000000000000000000000000000000026564000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000468696869000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000012323031392d342d31302031383a35343a34370000000000000000000000000000");
+
+
+document.getElementById("startBlockNumba").value = web3.eth.blockNumber - 1000;
+document.getElementById("endBlockNumba").value = web3.eth.blockNumber;
+document.getElementById("accountID").value = minerAccount;
+
+var abi = [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        },
+        {
+          "name": "deposit",
+          "type": "string"
+        }
+      ],
+      "name": "addCustomerDeposit2List",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+      "signature": "0xcb974b14"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        },
+        {
+          "name": "denomination",
+          "type": "string"
+        }
+      ],
+      "name": "addCustomerDenomination2List",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+      "signature": "0x762ebca9"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        }
+      ],
+      "name": "getDepositByKey",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xf53d8be3"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        }
+      ],
+      "name": "getDenominationByKey",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xe125a8d0"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "setManagerName",
+          "type": "string"
+        },
+        {
+          "name": "setRequiredDepositName",
+          "type": "int256"
+        },
+        {
+          "name": "setCurrencyDenomination",
+          "type": "string"
+        },
+        {
+          "name": "setPackagePrice",
+          "type": "int256"
+        },
+        {
+          "name": "setNumofDays",
+          "type": "int256"
+        },
+        {
+          "name": "setNumAndTypeOfRooms",
+          "type": "string"
+        },
+        {
+          "name": "setEarlyBirdDiscount",
+          "type": "int256"
+        },
+        {
+          "name": "setEarlyBirdEndDate",
+          "type": "uint256"
+        },
+        {
+          "name": "setHotelMessageMode",
+          "type": "string"
+        }
+      ],
+      "name": "set",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0xf657d242"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getManagerName",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x33fc093e"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getRequiredDepositName",
+      "outputs": [
+        {
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xc6657ee4"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getCurrencyDenomination",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x98935f51"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getPackagePrice",
+      "outputs": [
+        {
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x31f34169"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getNumofDays",
+      "outputs": [
+        {
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x84d48b49"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getNumAndTypeOfRooms",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x2f7f207c"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getEarlyBirdDiscount",
+      "outputs": [
+        {
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xb265ff8b"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getEarlyBirdEndDate",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x7899a434"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "userID",
+          "type": "string"
+        },
+        {
+          "name": "secretMsg",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string"
+        },
+        {
+          "name": "purposeIn",
+          "type": "string"
+        }
+      ],
+      "name": "writeTransacSecret",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x3e5c547e"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "userID",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string"
+        },
+        {
+          "name": "purposeIn",
+          "type": "string"
+        }
+      ],
+      "name": "viewTransacSecret",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x24273ad0"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getstoredSecretData",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xba66de68"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "a",
+          "type": "string"
+        },
+        {
+          "name": "b",
+          "type": "string"
+        }
+      ],
+      "name": "compareStrings",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xbed34bba"
+    }
+  ];
+  
+  var abi2 = [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "x",
+          "type": "int256"
+        }
+      ],
+      "name": "set",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0xe5c19b2d"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "get",
+      "outputs": [
+        {
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x6d4ce63c"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "userID",
+          "type": "string"
+        },
+        {
+          "name": "secretMsg",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string"
+        },
+        {
+          "name": "purposeIn",
+          "type": "string"
+        }
+      ],
+      "name": "writeTransacSecret",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x3e5c547e"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "userID",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string"
+        },
+        {
+          "name": "purposeIn",
+          "type": "string"
+        }
+      ],
+      "name": "viewTransacSecret",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x24273ad0"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getstoredSecretData",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xba66de68"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "a",
+          "type": "string"
+        },
+        {
+          "name": "b",
+          "type": "string"
+        }
+      ],
+      "name": "compareStrings",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xbed34bba"
+    }
+  ];
+
+
+function myFunction() { 
+  document.getElementById("demo").innerHTML = "Hello JavaScript!" + test;
+  
+
+
+var balanceWei = web3.eth.getBalance(minerAccount).toNumber();
+
+var balance = web3.fromWei(balanceWei, 'ether');
+  
+  document.getElementById("balance").innerHTML = balance.concat(" for account: ", minerAccount);
+  
+  
+  var number = web3.eth.blockNumber;
+  
+document.getElementById("blockNum").innerHTML = "Current Block Number: ".concat(number);
+  
+  
+}
+
+function f_Set2ContractPackage()
+{
+
+  document.getElementById("setContract").innerHTML = document.getElementById("select_path").value;
+   if (document.getElementById("select_path").value == "hotelProp1")
+   {
+      contractReadable = "package1";
+      document.getElementById("setContract").innerHTML = "hotelProp1";
+      var contractAddress = "0xe51E06f48BBC9202741AbFe03cF77d2bA81B41a8";
+      contract = web3.eth.contract(abi).at(contractAddress);
+
+      document.getElementById("setContract").innerHTML = "Contract successfully set at: ".concat(contractAddress);
+   }
+   else if (document.getElementById("select_path").value == "hotelProp2")
+   {
+      contractReadable = "package2";
+      var contractAddress = "0xe8525f92Bb91EA8e3639740334D7300a71fcA17A";
+      contract = web3.eth.contract(abi2).at(contractAddress);
+
+      document.getElementById("setContract").innerHTML = "Contract successfully set at: ".concat(contractAddress);
+   }
+   else
+   {}
+}
+
+
+
+function formSealSecret()
+{
+var abi = [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "x",
+          "type": "int256"
+        }
+      ],
+      "name": "set",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0xe5c19b2d"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "get",
+      "outputs": [
+        {
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x6d4ce63c"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "userID",
+          "type": "string"
+        },
+        {
+          "name": "secretMsg",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string"
+        },
+        {
+          "name": "purposeIn",
+          "type": "string"
+        }
+      ],
+      "name": "writeTransacSecret",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x3e5c547e"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "userID",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string"
+        },
+        {
+          "name": "purposeIn",
+          "type": "string"
+        }
+      ],
+      "name": "viewTransacSecret",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x24273ad0"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getstoredSecretData",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xba66de68"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "a",
+          "type": "string"
+        },
+        {
+          "name": "b",
+          "type": "string"
+        }
+      ],
+      "name": "compareStrings",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xbed34bba"
+    }
+  ];
+
+
+var today = new Date();
+var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+var dateTime = date+' '+time;
+
+
+  var userID = document.getElementById("SEALuserID").value;
+  var secretMsg = document.getElementById("SEALsecretMsg").value;
+
+
+document.getElementById("sealVal").innerHTML = "Sealed " + document.getElementById("SEALuserID").value + document.getElementById("SEALsecretMsg").value +  dateTime;
+
+ contract.writeTransacSecret.sendTransaction(userID,secretMsg,dateTime,"SEAL -- Set Secret", { from: web3.eth.accounts[0], gas: 4000000 });
+}
+
+function formUnsealSecret()
+{
+var abi = [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "x",
+          "type": "int256"
+        }
+      ],
+      "name": "set",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0xe5c19b2d"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "get",
+      "outputs": [
+        {
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x6d4ce63c"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "userID",
+          "type": "string"
+        },
+        {
+          "name": "secretMsg",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string"
+        },
+        {
+          "name": "purposeIn",
+          "type": "string"
+        }
+      ],
+      "name": "writeTransacSecret",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x3e5c547e"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "userID",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string"
+        },
+        {
+          "name": "purposeIn",
+          "type": "string"
+        }
+      ],
+      "name": "viewTransacSecret",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x24273ad0"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getstoredSecretData",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xba66de68"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "a",
+          "type": "string"
+        },
+        {
+          "name": "b",
+          "type": "string"
+        }
+      ],
+      "name": "compareStrings",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xbed34bba"
+    }
+  ];
+
+var today = new Date();
+var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+var time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+var dateTime = date+' '+time;
+
+
+  var userID = document.getElementById("UNSEALuserID").value;
+
+  contract.viewTransacSecret.sendTransaction(userID,dateTime,"UNSEAL -- VIEW SECRET", { from: web3.eth.accounts[0], gas: 4000000 });
+
+document.getElementById("UnsealVal").innerHTML = "Unsealed by" + document.getElementById("UNSEALuserID").value +  dateTime;
+
+
+}
+
+function accessLog()
+{
+document.getElementById("Status").innerHTML = "start";
+getTransactionsByAccount(document.getElementById("accountID").value,document.getElementById("startBlockNumba").value,document.getElementById("endBlockNumba").value);
+document.getElementById("Status").innerHTML = "end";
+}
+
+
+function f_Talk2Contract()
+{
+
+var abi = [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "x",
+          "type": "int256"
+        }
+      ],
+      "name": "set",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0xe5c19b2d"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "get",
+      "outputs": [
+        {
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x6d4ce63c"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "userID",
+          "type": "string"
+        },
+        {
+          "name": "secretMsg",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string"
+        },
+        {
+          "name": "purposeIn",
+          "type": "string"
+        }
+      ],
+      "name": "writeTransacSecret",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x3e5c547e"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "userID",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string"
+        },
+        {
+          "name": "purposeIn",
+          "type": "string"
+        }
+      ],
+      "name": "viewTransacSecret",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x24273ad0"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getstoredSecretData",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xba66de68"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "a",
+          "type": "string"
+        },
+        {
+          "name": "b",
+          "type": "string"
+        }
+      ],
+      "name": "compareStrings",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xbed34bba"
+    }
+  ];
+
+var contractAddress = "0x153Bb11bB12B2e0A9A1B375ECc335Ce1c03FC823";
+contract = web3.eth.contract(abi).at(contractAddress);
+
+document.getElementById("setContract").innerHTML = "Contract successfully set at: ".concat(contractAddress);
+
+
+
+
+}//f_Talk2Contract
+
+
+
+function set()
+{
+
+
+  
+var localABI = null;
+
+if (contractReadable == "package1")
+{
+	localABI = abi;
+}
+else if (contractReadable == package2)
+{
+	localABI = abi2;
+}
+else{}  
+
+
+
+
+var strDate = document.getElementById("setEarlyBirdEndDate").value;
+
+  document.getElementById("setVal").innerHTML = "Hello JavaScript!";
+
+var res = strDate.split("/");
+
+
+
+  
+var d = new Date();
+d.setFullYear(res[2], res[1], res[0]); 
+
+  
+let date = (d).getTime();
+let birthDateInUnixTimestamp = date / 1000;
+
+  
+ var setManagerName = document.getElementById("setManagerName").value;
+  var setRequiredDepositName = document.getElementById("setRequiredDepositName").value;
+  var setCurrencyDenomination = document.getElementById("setCurrencyDenomination").value;
+  var setPackagePrice = document.getElementById("setPackagePrice").value;
+  var setNumofDays = document.getElementById("setNumofDays").value;
+  var setNumAndTypeOfRooms = document.getElementById("setNumAndTypeOfRooms").value;
+  var setEarlyBirdDiscount = document.getElementById("setEarlyBirdDiscount").value; 
+  
+
+  var setEarlyBirdEndDate = birthDateInUnixTimestamp;
+  
+//here cannot
+  
+  if (setCurrencyDenomination != "ETH")
+  {
+	setRequiredDepositName = setRequiredDepositName * 100; //assume 2 decimal place is the most, solidity can only store int
+	setPackagePrice = setPackagePrice * 100;
+  }
+  
+  document.getElementById("setVal").innerHTML = "Hello JavaScript222!";
+  
+  //var textBoxVal = document.getElementById("setValtxtbox").value;
+  //contract.set.sendTransaction(textBoxVal, { from: web3.eth.accounts[0], gas: 4000000 });
+// 
+   contract.set.sendTransaction(setManagerName,setRequiredDepositName,setCurrencyDenomination,setPackagePrice,setNumofDays,setNumAndTypeOfRooms,setEarlyBirdDiscount,setEarlyBirdEndDate,"Set Package Parameters",{ from: web3.eth.accounts[0], gas: 4000000 });
+
+	document.getElementById("setVal").innerHTML = "Contract successfully set";
+  
+}// set
+	
+
+function get()
+{	
+var abi = [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "x",
+          "type": "int256"
+        }
+      ],
+      "name": "set",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0xe5c19b2d"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "get",
+      "outputs": [
+        {
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x6d4ce63c"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "userID",
+          "type": "string"
+        },
+        {
+          "name": "secretMsg",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string"
+        },
+        {
+          "name": "purposeIn",
+          "type": "string"
+        }
+      ],
+      "name": "writeTransacSecret",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x3e5c547e"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "userID",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string"
+        },
+        {
+          "name": "purposeIn",
+          "type": "string"
+        }
+      ],
+      "name": "viewTransacSecret",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x24273ad0"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getstoredSecretData",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xba66de68"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "a",
+          "type": "string"
+        },
+        {
+          "name": "b",
+          "type": "string"
+        }
+      ],
+      "name": "compareStrings",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xbed34bba"
+    }
+  ];
+	var currentValue = (contract.get.call()).toNumber();
+	document.getElementById("getVal").innerHTML = "Current Value is ".concat(currentValue);
+	
+}// get
+
+
+function getstoredSecretData()
+{	
+var abi = [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "x",
+          "type": "int256"
+        }
+      ],
+      "name": "set",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0xe5c19b2d"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "get",
+      "outputs": [
+        {
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x6d4ce63c"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "userID",
+          "type": "string"
+        },
+        {
+          "name": "secretMsg",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string"
+        },
+        {
+          "name": "purposeIn",
+          "type": "string"
+        }
+      ],
+      "name": "writeTransacSecret",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x3e5c547e"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "userID",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string"
+        },
+        {
+          "name": "purposeIn",
+          "type": "string"
+        }
+      ],
+      "name": "viewTransacSecret",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x24273ad0"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getstoredSecretData",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xba66de68"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "a",
+          "type": "string"
+        },
+        {
+          "name": "b",
+          "type": "string"
+        }
+      ],
+      "name": "compareStrings",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xbed34bba"
+    }
+  ];
+	var currentValue = (contract.getstoredSecretData.call()).toString();
+	document.getElementById("getValstoredSecretData").innerHTML = "Current Value is ".concat(currentValue);
+	
+}// getstoredSecretData
+
+
+function getstoredSecretData2()
+{	
+var abi = [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "x",
+          "type": "int256"
+        }
+      ],
+      "name": "set",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0xe5c19b2d"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "get",
+      "outputs": [
+        {
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x6d4ce63c"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "userID",
+          "type": "string"
+        },
+        {
+          "name": "secretMsg",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string"
+        },
+        {
+          "name": "purposeIn",
+          "type": "string"
+        }
+      ],
+      "name": "writeTransacSecret",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x3e5c547e"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "userID",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string"
+        },
+        {
+          "name": "purposeIn",
+          "type": "string"
+        }
+      ],
+      "name": "viewTransacSecret",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x24273ad0"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getstoredSecretData",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xba66de68"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "a",
+          "type": "string"
+        },
+        {
+          "name": "b",
+          "type": "string"
+        }
+      ],
+      "name": "compareStrings",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xbed34bba"
+    }
+  ];
+	var currentValue = (contract.getstoredSecretData.call()).toString();
+	document.getElementById("getValstoredSecretData2").innerHTML = "Current Value is ".concat(currentValue);
+	
+}// getstoredSecretData2
+
+
+function getTransactionsByAccount(myaccount, startBlockNumber, endBlockNumber) {
+document.getElementById("Status").innerHTML = "getTransactionsByAccount";
+  var textDataTransactRaw = "";
+  var whoWasHere = "";
+
+  if (endBlockNumber == null) {
+    endBlockNumber = web3.eth.blockNumber;
+    //console.log("Using endBlockNumber: " + endBlockNumber);
+  }
+  if (startBlockNumber == null) {
+    startBlockNumber = endBlockNumber - 1000;
+    //console.log("Using startBlockNumber: " + startBlockNumber);
+  }
+	//console.log("Searching for transactions to/from account \"" + myaccount + "\" within blocks "  + startBlockNumber + " and " + endBlockNumber);
+
+  for (var i = startBlockNumber; i <= endBlockNumber; i++) {
+    if (i % 1000 == 0) {
+      //console.log("Searching block " + i);
+    }
+    var block = web3.eth.getBlock(i, true);
+	document.getElementById("Status").innerHTML = i;
+    if (block != null && block.transactions != null) {
+      block.transactions.forEach( function(e) {
+        if (myaccount == "*" || myaccount == e.from || myaccount == e.to) {
+          textDataTransactRaw = textDataTransactRaw + "  tx hash          : " + e.hash + "<BR>"
+            + "   nonce           : " + e.nonce + "<BR>"
+            + "   blockHash       : " + e.blockHash + "<BR>"
+            + "   blockNumber     : " + e.blockNumber + "<BR>"
+            + "   transactionIndex: " + e.transactionIndex + "<BR>"
+            + "   from            : " + e.from + "<BR>" 
+            + "   to              : " + e.to + "<BR>"
+            + "   value           : " + e.value + "<BR>"
+            + "   time            : " + block.timestamp + " " + (new Date(block.timestamp * 1000)).toGMTString() + "<BR>"
+            + "   gasPrice        : " + e.gasPrice + "<BR>"
+            + "   gas             : " + e.gas + "<BR>"
+            + "   input           : " + e.input + "<BR>"
+			+ "-------------------------------------<BR>";
+			
+		whoWasHere = whoWasHere + web3.toAscii(e.input)  + " -- transactionID: " + e.hash + "<BR>";
+        }
+      })
+    }
+  }
+  
+  document.getElementById("AccessLog").innerHTML = whoWasHere;
+  document.getElementById("TransactionLog").innerHTML = textDataTransactRaw;
+  
+}
+
+</script>
+
+</body>
+</html>
