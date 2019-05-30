@@ -90,8 +90,8 @@ function addCustomerDenomination2List(string memory customerAcct,string memory d
 		uint paidAmount = getDepositByKey(customerAcct);
 		
 
-		  Hotel_SGD_Earnings = Hotel_SGD_Earnings + paidAmount + 60;
-		  Hotel_SGD_Holdings = Hotel_SGD_Holdings - paidAmount - 60;
+		  Hotel_SGD_Earnings = Hotel_SGD_Earnings + paidAmount;// 
+		  Hotel_SGD_Holdings = Hotel_SGD_Holdings - paidAmount;// Hotel_SGD_Holdings - 60 -
 
 		remove(customerAcct);
 	}
@@ -101,7 +101,7 @@ function addCustomerDenomination2List(string memory customerAcct,string memory d
 		string memory paidDenomination = getDenominationByKey(customerAcct);
 		uint paidAmount = getDepositByKey(customerAcct);
 		
-         hotelAdd.transfer(paidAmount);
+         hotelAdd.transfer(paidAmount); 
 
 
 		remove(customerAcct);
