@@ -59,13 +59,14 @@ Last name: <input type="text" name="lname" id="setValtxtbox"><button type="butto
 <button type="button" onclick="paymentFunction()">Buy Package?</button>
 <p id="commitPaymentType">---</p>
 <p id="paymentProgress">---</p>
+<p id="paymentProgress2">---</p>
 <p id="transaction">---</p>
 <p id="transactionID">---</p>
 <p id="commit">---</p>
 
 <button type="button" onclick="custCheckout()">Check out?</button>
 <p id="checkout">---</p>
-
+<p id="checkout2">---</p>
 </td>
 
 <td>
@@ -785,7 +786,7 @@ function paymentFunction() // this is a dummy function that will always succeed 
 //var reqDeposit = "";
 //var denomination = "";
 
- var amountToPay = (Number(packagePrice) + Number(reqDeposit) - Number(earlyBirdDiscount))/100;
+ var amountToPay = (Number(packagePrice/100) + Number(reqDeposit/100) - Number(earlyBirdDiscount));
  
  
  
@@ -822,7 +823,7 @@ function paymentFunction() // this is a dummy function that will always succeed 
  }
  else{}
  
- 
+ document.getElementById("paymentProgress2").innerHTML = "Amount to pay after conversion: ".concat(amountToPay);
   
  // contract.writeTransacSecret.sendTransaction(userID,secretMsg,dateTime,"SEAL -- Set Secret", { from: web3.eth.accounts[0], gas: 4000000 });
 //paymentHolding(string memory customerAcct, string memory paymentDenomination,string memory paymentAmount, string memory setHotelMessageMode)
@@ -839,7 +840,8 @@ var transactionReceipt1 = ""; //to get transactionID to check if successful. you
  }
  else //cust choose to pay in ether 
  {
-   transactionReceipt1 = contract.paymentHolding.sendTransaction(minerAccount,customerChoiceDenomination, amountToPay,"Package Bought Parameters|paid in ETH", { from: minerAccount, to:contract.address, value: web3.toWei(amountToPay, 'ether'), gas: 4000000 });
+   var amountToPayGWEI = amountToPay * 1000000000000000000;//because stored in uint
+   transactionReceipt1 = contract.paymentHolding.sendTransaction(minerAccount,customerChoiceDenomination, amountToPayGWEI,"Package Bought Parameters|paid in ETH", { from: minerAccount, to:contract.address, value: web3.toWei(amountToPay, 'ether'), gas: 4000000 });
          document.getElementById("transaction").innerHTML = "Payment in ETH with transactionID";													
   } 
   
@@ -862,11 +864,13 @@ var transactionReceipt1 = "";
  {
    transactionReceipt1 = contract.customerCheckOutSGD.sendTransaction(minerAccount,"CustomerCheckOut", { from: minerAccount, gas: 4000000 });
        document.getElementById("checkout").innerHTML = "You have checked out: transactionID : ".concat(transactionReceipt1);
+	   document.getElementById("checkout2").innerHTML = "You have checked out: DENOMINATION : ".concat(customerChoiceDenomination);
   }
   else
   {
    transactionReceipt1 = contract.customerCheckOutETH.sendTransaction(minerAccount,HotelAccount,"CustomerCheckOut", { from: minerAccount, gas: 4000000 });
        document.getElementById("checkout").innerHTML = "You have checked out: transactionID : ".concat(transactionReceipt1);
+	   document.getElementById("checkout2").innerHTML = "You have checked out: DENOMINATION : ".concat(customerChoiceDenomination);
   }
 }
 
@@ -878,7 +882,7 @@ function f_Set2ContractPackage()
    {
       contractReadable = "package1";
       document.getElementById("setContract").innerHTML = "hotelProp1";
-      var contractAddress = "0x48556D1BaE4D9572B106D26e47021AA1C15D5Dc3";
+      var contractAddress = "0x88F98Aef731abF9A82F995EF2321a543CAF78A32";
       contract = web3.eth.contract(abi).at(contractAddress);
 
       document.getElementById("setContract").innerHTML = "Contract successfully set at: ".concat(contractAddress);
@@ -886,7 +890,7 @@ function f_Set2ContractPackage()
    else if (document.getElementById("select_path").value == "hotelProp2")
    {
       contractReadable = "package2";
-      var contractAddress = "0x7f92fa01Ec476f4bcc0b93e9d5671e12BB5f805B";
+      var contractAddress = "0xa63cAAbA803834f8B5ee3Cc86bEE1cDf3ACb8a1C";
       contract = web3.eth.contract(abi2).at(contractAddress);
 
       document.getElementById("setContract").innerHTML = "Contract successfully set at: ".concat(contractAddress);

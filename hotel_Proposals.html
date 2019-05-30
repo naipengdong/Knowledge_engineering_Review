@@ -30,14 +30,14 @@
 <button type="button" onclick="f_Talk2Contract()">Set Contract old</button>
 <p id="setContract">---</p>
 
-Manager Name: <input type="text" name="lname" id="setManagerName"><BR>
-Required Deposit (for damages): <input type="text" name="lname1" id="setRequiredDepositName"><BR>
-Denomination of currency: <input type="text" name="lname2" id="setCurrencyDenomination"><BR>
-Package Price: <input type="text" name="lname3" id="setPackagePrice"><BR>
-Number of Days: <input type="text" name="lname4" id="setNumofDays"><BR>
-Number and type of Rooms: <input type="text" name="lname5" id="setNumAndTypeOfRooms"><BR>
-Early Bird Discount (Quantum): <input type="text" name="lname6" id="setEarlyBirdDiscount"><BR>
-Early Bird End Date (DD/MM/YYYY): <input type="text" name="lname7" id="setEarlyBirdEndDate"><BR>
+Manager Name: <input type="text" name="lname" id="setManagerName" value="Ed"><BR>
+Required Deposit (for damages): <input type="text" name="lname1" id="setRequiredDepositName" value="500"><BR>
+Denomination of currency: <input type="text" name="lname2" id="setCurrencyDenomination" value="SGD"><BR>
+Package Price: <input type="text" name="lname3" id="setPackagePrice" value="2000"><BR>
+Number of Days: <input type="text" name="lname4" id="setNumofDays" value="4"><BR>
+Number and type of Rooms: <input type="text" name="lname5" id="setNumAndTypeOfRooms" value="4D2D"><BR>
+Early Bird Discount (Quantum): <input type="text" name="lname6" id="setEarlyBirdDiscount" value="40"><BR>
+Early Bird End Date (DD/MM/YYYY): <input type="text" name="lname7" id="setEarlyBirdEndDate" value="12/12/1980"><BR>
 <button type="button" onclick="set()">Set Value</button>
 <p id="setVal">---</p>
 
@@ -782,7 +782,7 @@ function f_Set2ContractPackage()
    {
       contractReadable = "package1";
       document.getElementById("setContract").innerHTML = "hotelProp1";
-      var contractAddress = "0x48556D1BaE4D9572B106D26e47021AA1C15D5Dc3";
+      var contractAddress = "0x88F98Aef731abF9A82F995EF2321a543CAF78A32";
       contract = web3.eth.contract(abi).at(contractAddress);
 
       document.getElementById("setContract").innerHTML = "Contract successfully set at: ".concat(contractAddress);
@@ -790,7 +790,7 @@ function f_Set2ContractPackage()
    else if (document.getElementById("select_path").value == "hotelProp2")
    {
       contractReadable = "package2";
-      var contractAddress = "0x7f92fa01Ec476f4bcc0b93e9d5671e12BB5f805B";
+      var contractAddress = "0xa63cAAbA803834f8B5ee3Cc86bEE1cDf3ACb8a1C";
       contract = web3.eth.contract(abi2).at(contractAddress);
 
       document.getElementById("setContract").innerHTML = "Contract successfully set at: ".concat(contractAddress);
