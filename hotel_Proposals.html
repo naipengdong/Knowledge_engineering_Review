@@ -9,7 +9,7 @@
 <button type="button" onclick="myFunction()">Click Me!</button>
 
 <TABLE border = "1">
-<tr> <th > Manager Set Contract Panel</th><th >Seal Data</th><th >Unseal Data</th><th>Who Has accessed</th></tr>
+<tr> <th > Manager Set Contract Panel</th><th>View Transactions by Account</th></tr>
 <tr><td >
 
 <p id="demo">This is a demonstration.</p>
@@ -27,7 +27,6 @@
 </select>
 <button type="button" onclick="f_Set2ContractPackage()">Set Contract</button>
 
-<button type="button" onclick="f_Talk2Contract()">Set Contract old</button>
 <p id="setContract">---</p>
 
 Manager Name: <input type="text" name="lname" id="setManagerName" value="Ed"><BR>
@@ -46,40 +45,10 @@ Early Bird End Date (DD/MM/YYYY): <input type="text" name="lname7" id="setEarlyB
 <p id="contractBalanceSGD">---</p>
 <p id="contractBalanceSGDEarnings">---</p>
 
-<button type="button" onclick="get()">Get Value</button>
-<p id="getVal">---</p>
+
 
 
 </td>
-
-<td>
-
-
-  UserID:<br>
-  <input type="text" id="SEALuserID" value=""><br>
-  Secret Message:<br>
-  <input type="text" id="SEALsecretMsg" value=""><br><br>
-  <button type="button" onclick="formSealSecret()" >Seal</button>
-
-<p id="sealVal">---</p>
-
-
-
-<button type="button" onclick="getstoredSecretData()">Get Value storedSecretData</button>
-<p id="getValstoredSecretData">---</p>
-
-</td>
-
-</td><td>
-
-  UserID:<br>
-  <input type="text" id="UNSEALuserID" value=""><br>
-
-  <button type="button" onclick="formUnsealSecret()" >UnSeal</button><br>
-
-  <button type="button" onclick="getstoredSecretData2()">Get Value storedSecretData</button>
-<p id="getValstoredSecretData2">---</p>
-
 
 </td>
 
@@ -99,7 +68,7 @@ Early Bird End Date (DD/MM/YYYY): <input type="text" name="lname7" id="setEarlyB
 <button type="button" onclick="accessLog()" >Go!</button>
 <BR>Status:
 <p id="Status">---</p>
-<BR>AccessLog:
+<BR>TransactionLog (Input):
 <p id="AccessLog">---</p>
 <BR>TransactionLog (RAW):
 <p id="TransactionLog">---</p>
@@ -518,76 +487,6 @@ var abi = [
       "signature": "0x7899a434"
     },
     {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "userID",
-          "type": "string"
-        },
-        {
-          "name": "secretMsg",
-          "type": "string"
-        },
-        {
-          "name": "timestamp",
-          "type": "string"
-        },
-        {
-          "name": "purposeIn",
-          "type": "string"
-        }
-      ],
-      "name": "writeTransacSecret",
-      "outputs": [],
-      "payable": true,
-      "stateMutability": "payable",
-      "type": "function",
-      "signature": "0x3e5c547e"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "userID",
-          "type": "string"
-        },
-        {
-          "name": "timestamp",
-          "type": "string"
-        },
-        {
-          "name": "purposeIn",
-          "type": "string"
-        }
-      ],
-      "name": "viewTransacSecret",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": true,
-      "stateMutability": "payable",
-      "type": "function",
-      "signature": "0x24273ad0"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "getstoredSecretData",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function",
-      "signature": "0xba66de68"
-    },
-    {
       "constant": true,
       "inputs": [
         {
@@ -618,8 +517,235 @@ var abi = [
       "constant": false,
       "inputs": [
         {
-          "name": "x",
+          "name": "customerAcct",
+          "type": "string"
+        },
+        {
+          "name": "deposit",
+          "type": "uint256"
+        }
+      ],
+      "name": "addCustomerDeposit2List",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+      "signature": "0x0b180d82"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        },
+        {
+          "name": "denomination",
+          "type": "string"
+        }
+      ],
+      "name": "addCustomerDenomination2List",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+      "signature": "0x762ebca9"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        }
+      ],
+      "name": "remove",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+      "signature": "0x80599e4b"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        }
+      ],
+      "name": "getDepositByKey",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xf53d8be3"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        }
+      ],
+      "name": "getDenominationByKey",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xe125a8d0"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        },
+        {
+          "name": "setHotelMessageMode",
+          "type": "string"
+        }
+      ],
+      "name": "customerCheckOutSGD",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x092b2701"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        },
+        {
+          "name": "hotelAdd",
+          "type": "address"
+        },
+        {
+          "name": "setHotelMessageMode",
+          "type": "string"
+        }
+      ],
+      "name": "customerCheckOutETH",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x823c308e"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "deposit",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0xb6b55f25"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getBalance",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x12065fe0"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getSGDBalance",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xb02e46e8"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getSGDEarnings",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x2234a45c"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "setManagerName",
+          "type": "string"
+        },
+        {
+          "name": "setRequiredDepositName",
+          "type": "uint256"
+        },
+        {
+          "name": "setCurrencyDenomination",
+          "type": "string"
+        },
+        {
+          "name": "setPackagePrice",
+          "type": "uint256"
+        },
+        {
+          "name": "setNumofDays",
           "type": "int256"
+        },
+        {
+          "name": "setNumAndTypeOfRooms",
+          "type": "string"
+        },
+        {
+          "name": "setEarlyBirdDiscount",
+          "type": "uint256"
+        },
+        {
+          "name": "setEarlyBirdEndDate",
+          "type": "uint256"
+        },
+        {
+          "name": "setHotelMessageMode",
+          "type": "string"
         }
       ],
       "name": "set",
@@ -627,12 +753,99 @@ var abi = [
       "payable": true,
       "stateMutability": "payable",
       "type": "function",
-      "signature": "0xe5c19b2d"
+      "signature": "0xfb685774"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        },
+        {
+          "name": "paymentDenomination",
+          "type": "string"
+        },
+        {
+          "name": "paymentAmount",
+          "type": "uint256"
+        },
+        {
+          "name": "setHotelMessageMode",
+          "type": "string"
+        }
+      ],
+      "name": "paymentHolding",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0xd962e8e1"
     },
     {
       "constant": true,
       "inputs": [],
-      "name": "get",
+      "name": "getManagerName",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x33fc093e"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getRequiredDepositName",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xc6657ee4"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getCurrencyDenomination",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x98935f51"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getPackagePrice",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x31f34169"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getNumofDays",
       "outputs": [
         {
           "name": "",
@@ -642,67 +855,12 @@ var abi = [
       "payable": false,
       "stateMutability": "view",
       "type": "function",
-      "signature": "0x6d4ce63c"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "userID",
-          "type": "string"
-        },
-        {
-          "name": "secretMsg",
-          "type": "string"
-        },
-        {
-          "name": "timestamp",
-          "type": "string"
-        },
-        {
-          "name": "purposeIn",
-          "type": "string"
-        }
-      ],
-      "name": "writeTransacSecret",
-      "outputs": [],
-      "payable": true,
-      "stateMutability": "payable",
-      "type": "function",
-      "signature": "0x3e5c547e"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "userID",
-          "type": "string"
-        },
-        {
-          "name": "timestamp",
-          "type": "string"
-        },
-        {
-          "name": "purposeIn",
-          "type": "string"
-        }
-      ],
-      "name": "viewTransacSecret",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": true,
-      "stateMutability": "payable",
-      "type": "function",
-      "signature": "0x24273ad0"
+      "signature": "0x84d48b49"
     },
     {
       "constant": true,
       "inputs": [],
-      "name": "getstoredSecretData",
+      "name": "getNumAndTypeOfRooms",
       "outputs": [
         {
           "name": "",
@@ -712,7 +870,37 @@ var abi = [
       "payable": false,
       "stateMutability": "view",
       "type": "function",
-      "signature": "0xba66de68"
+      "signature": "0x2f7f207c"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getEarlyBirdDiscount",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xb265ff8b"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getEarlyBirdEndDate",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x7899a434"
     },
     {
       "constant": true,
@@ -782,7 +970,7 @@ function f_Set2ContractPackage()
    {
       contractReadable = "package1";
       document.getElementById("setContract").innerHTML = "hotelProp1";
-      var contractAddress = "0x88F98Aef731abF9A82F995EF2321a543CAF78A32";
+      var contractAddress = "0xbb8AB393b798605440cAc9C47eeE1117bb9b3156";
       contract = web3.eth.contract(abi).at(contractAddress);
 
       document.getElementById("setContract").innerHTML = "Contract successfully set at: ".concat(contractAddress);
@@ -790,7 +978,7 @@ function f_Set2ContractPackage()
    else if (document.getElementById("select_path").value == "hotelProp2")
    {
       contractReadable = "package2";
-      var contractAddress = "0xa63cAAbA803834f8B5ee3Cc86bEE1cDf3ACb8a1C";
+      var contractAddress = "0x853B719fB3CA99CD69d0164989724484F8425A00";
       contract = web3.eth.contract(abi2).at(contractAddress);
 
       document.getElementById("setContract").innerHTML = "Contract successfully set at: ".concat(contractAddress);
@@ -957,7 +1145,7 @@ if (contractReadable == "package1")
 {
 	localABI = abi;
 }
-else if (contractReadable == package2)
+else if (contractReadable == "package2")
 {
 	localABI = abi2;
 }
@@ -1014,407 +1202,13 @@ let birthDateInUnixTimestamp = date / 1000;
 }// set
 	
 
-function get()
-{	
-var abi = [
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "x",
-          "type": "int256"
-        }
-      ],
-      "name": "set",
-      "outputs": [],
-      "payable": true,
-      "stateMutability": "payable",
-      "type": "function",
-      "signature": "0xe5c19b2d"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "get",
-      "outputs": [
-        {
-          "name": "",
-          "type": "int256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function",
-      "signature": "0x6d4ce63c"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "userID",
-          "type": "string"
-        },
-        {
-          "name": "secretMsg",
-          "type": "string"
-        },
-        {
-          "name": "timestamp",
-          "type": "string"
-        },
-        {
-          "name": "purposeIn",
-          "type": "string"
-        }
-      ],
-      "name": "writeTransacSecret",
-      "outputs": [],
-      "payable": true,
-      "stateMutability": "payable",
-      "type": "function",
-      "signature": "0x3e5c547e"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "userID",
-          "type": "string"
-        },
-        {
-          "name": "timestamp",
-          "type": "string"
-        },
-        {
-          "name": "purposeIn",
-          "type": "string"
-        }
-      ],
-      "name": "viewTransacSecret",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": true,
-      "stateMutability": "payable",
-      "type": "function",
-      "signature": "0x24273ad0"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "getstoredSecretData",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function",
-      "signature": "0xba66de68"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "a",
-          "type": "string"
-        },
-        {
-          "name": "b",
-          "type": "string"
-        }
-      ],
-      "name": "compareStrings",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function",
-      "signature": "0xbed34bba"
-    }
-  ];
-	var currentValue = (contract.get.call()).toNumber();
-	document.getElementById("getVal").innerHTML = "Current Value is ".concat(currentValue);
-	
-}// get
 
-
-function getstoredSecretData()
-{	
-var abi = [
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "x",
-          "type": "int256"
-        }
-      ],
-      "name": "set",
-      "outputs": [],
-      "payable": true,
-      "stateMutability": "payable",
-      "type": "function",
-      "signature": "0xe5c19b2d"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "get",
-      "outputs": [
-        {
-          "name": "",
-          "type": "int256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function",
-      "signature": "0x6d4ce63c"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "userID",
-          "type": "string"
-        },
-        {
-          "name": "secretMsg",
-          "type": "string"
-        },
-        {
-          "name": "timestamp",
-          "type": "string"
-        },
-        {
-          "name": "purposeIn",
-          "type": "string"
-        }
-      ],
-      "name": "writeTransacSecret",
-      "outputs": [],
-      "payable": true,
-      "stateMutability": "payable",
-      "type": "function",
-      "signature": "0x3e5c547e"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "userID",
-          "type": "string"
-        },
-        {
-          "name": "timestamp",
-          "type": "string"
-        },
-        {
-          "name": "purposeIn",
-          "type": "string"
-        }
-      ],
-      "name": "viewTransacSecret",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": true,
-      "stateMutability": "payable",
-      "type": "function",
-      "signature": "0x24273ad0"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "getstoredSecretData",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function",
-      "signature": "0xba66de68"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "a",
-          "type": "string"
-        },
-        {
-          "name": "b",
-          "type": "string"
-        }
-      ],
-      "name": "compareStrings",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function",
-      "signature": "0xbed34bba"
-    }
-  ];
-	var currentValue = (contract.getstoredSecretData.call()).toString();
-	document.getElementById("getValstoredSecretData").innerHTML = "Current Value is ".concat(currentValue);
-	
-}// getstoredSecretData
-
-
-function getstoredSecretData2()
-{	
-var abi = [
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "x",
-          "type": "int256"
-        }
-      ],
-      "name": "set",
-      "outputs": [],
-      "payable": true,
-      "stateMutability": "payable",
-      "type": "function",
-      "signature": "0xe5c19b2d"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "get",
-      "outputs": [
-        {
-          "name": "",
-          "type": "int256"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function",
-      "signature": "0x6d4ce63c"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "userID",
-          "type": "string"
-        },
-        {
-          "name": "secretMsg",
-          "type": "string"
-        },
-        {
-          "name": "timestamp",
-          "type": "string"
-        },
-        {
-          "name": "purposeIn",
-          "type": "string"
-        }
-      ],
-      "name": "writeTransacSecret",
-      "outputs": [],
-      "payable": true,
-      "stateMutability": "payable",
-      "type": "function",
-      "signature": "0x3e5c547e"
-    },
-    {
-      "constant": false,
-      "inputs": [
-        {
-          "name": "userID",
-          "type": "string"
-        },
-        {
-          "name": "timestamp",
-          "type": "string"
-        },
-        {
-          "name": "purposeIn",
-          "type": "string"
-        }
-      ],
-      "name": "viewTransacSecret",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": true,
-      "stateMutability": "payable",
-      "type": "function",
-      "signature": "0x24273ad0"
-    },
-    {
-      "constant": true,
-      "inputs": [],
-      "name": "getstoredSecretData",
-      "outputs": [
-        {
-          "name": "",
-          "type": "string"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function",
-      "signature": "0xba66de68"
-    },
-    {
-      "constant": true,
-      "inputs": [
-        {
-          "name": "a",
-          "type": "string"
-        },
-        {
-          "name": "b",
-          "type": "string"
-        }
-      ],
-      "name": "compareStrings",
-      "outputs": [
-        {
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "payable": false,
-      "stateMutability": "view",
-      "type": "function",
-      "signature": "0xbed34bba"
-    }
-  ];
-	var currentValue = (contract.getstoredSecretData.call()).toString();
-	document.getElementById("getValstoredSecretData2").innerHTML = "Current Value is ".concat(currentValue);
-	
-}// getstoredSecretData2
-
+function accessLog()
+{
+document.getElementById("Status").innerHTML = "start";
+getTransactionsByAccount(document.getElementById("accountID").value,document.getElementById("startBlockNumba").value,document.getElementById("endBlockNumba").value);
+document.getElementById("Status").innerHTML = "end";
+}
 
 function getTransactionsByAccount(myaccount, startBlockNumber, endBlockNumber) {
 document.getElementById("Status").innerHTML = "getTransactionsByAccount";
