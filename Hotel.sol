@@ -186,35 +186,6 @@ function addCustomerDenomination2List(string memory customerAcct,string memory d
         return EarlyBirdEndDate;	
     }
 	
-    function writeTransacSecret(string memory userID, string memory secretMsg, string memory timestamp, string memory purposeIn) public payable {
-        storedSecretData = secretMsg;
-		userIDAccessed = userID;
-		purpose = purposeIn;
-		accessedTimestamp = timestamp;
-		Unsealed = "Sealed";
-    }
-	
-    function viewTransacSecret(string memory userID, string memory timestamp, string memory purposeIn) public payable returns (string memory){
-        currentSecret = storedSecretData;
-		userIDAccessed = userID;
-		purpose = purposeIn;
-		accessedTimestamp = timestamp;
-	    Unsealed = "Unsealed";
-        return storedSecretData;
-    }
-
-    function getstoredSecretData() public view returns (string memory) {
-	    if(compareStrings(Unsealed,"Unsealed"))
-		{
-			return storedSecretData;
-		}
-		else
-		{
-			return "Error!! You need to unseal the secret message or maybe there is no secret message =D";
-		}
-        	
-    }
-	
 	function compareStrings (string memory a, string memory b) public view returns (bool) {
 		return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))) );
        }
@@ -404,34 +375,7 @@ function addCustomerDenomination2List(string memory customerAcct,string memory d
         return EarlyBirdEndDate;	
     }
 	
-    function writeTransacSecret(string memory userID, string memory secretMsg, string memory timestamp, string memory purposeIn) public payable {
-        storedSecretData = secretMsg;
-		userIDAccessed = userID;
-		purpose = purposeIn;
-		accessedTimestamp = timestamp;
-		Unsealed = "Sealed";
-    }
-	
-    function viewTransacSecret(string memory userID, string memory timestamp, string memory purposeIn) public payable returns (string memory){
-        currentSecret = storedSecretData;
-		userIDAccessed = userID;
-		purpose = purposeIn;
-		accessedTimestamp = timestamp;
-	    Unsealed = "Unsealed";
-        return storedSecretData;
-    }
 
-    function getstoredSecretData() public view returns (string memory) {
-	    if(compareStrings(Unsealed,"Unsealed"))
-		{
-			return storedSecretData;
-		}
-		else
-		{
-			return "Error!! You need to unseal the secret message or maybe there is no secret message =D";
-		}
-        	
-    }
 	
 	function compareStrings (string memory a, string memory b) public view returns (bool) {
 		return (keccak256(abi.encodePacked((a))) == keccak256(abi.encodePacked((b))) );
