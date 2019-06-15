@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>This is the Hotel View!!</h1>
+
+<p>JavaScript can change the content of an HTML element:</p>
+
+<button type="button" onclick="myFunction()">Click Me!</button>
+
+<TABLE border = "1">
+<tr> <th > Manager Set Contract Panel</th><th>View Transactions by Account</th></tr>
+<tr><td >
+
+<p id="demo">This is a demonstration.</p>
+
+<p id="balance">Balance</p>
+
+<p id="blockNum">Block Number</p>
+
+<p id="xvalue">123</p>
+
+
+<select  onchange="f_Set2ContractPackage()" name="contract2Use" id="select_path">
+  <option value="hotelProp1">Package 1</option>
+  <option value="hotelProp2">Package 2</option>
+</select>
+<button type="button" onclick="f_Set2ContractPackage()">Set Contract</button>
+
+<p id="setContract">---</p>
+
+Manager Name: <input type="text" name="lname" id="setManagerName" value="Ed"><BR>
+Required Deposit (for damages): <input type="text" name="lname1" id="setRequiredDepositName" value="500"><BR>
+Denomination of currency: <input type="text" name="lname2" id="setCurrencyDenomination" value="SGD"><BR>
+Package Price: <input type="text" name="lname3" id="setPackagePrice" value="2000"><BR>
+Number of Days: <input type="text" name="lname4" id="setNumofDays" value="4"><BR>
+Number and type of Rooms: <input type="text" name="lname5" id="setNumAndTypeOfRooms" value="4D2D"><BR>
+Early Bird Discount (Quantum): <input type="text" name="lname6" id="setEarlyBirdDiscount" value="40"><BR>
+Early Bird End Date (DD/MM/YYYY): <input type="text" name="lname7" id="setEarlyBirdEndDate" value="12/12/1980"><BR>
+<button type="button" onclick="set()">Set Value</button>
+<p id="setVal">---</p>
+
+<button type="button" onclick="chkContractBalance()">Check Contract Balance</button>
+<p id="contractBalance">---</p>
+<p id="contractBalanceSGD">---</p>
+<p id="contractBalanceSGDEarnings">---</p>
+
+
+
+
+</td>
+
+</td>
+
+
+
+
+
+<td>
+
+  StartBlock<br>
+  <input type="text" id="startBlockNumba" value=""><br>
+    EndBlock<br>
+  <input type="text" id="endBlockNumba" value=""><br>
+    Account<br>
+  <input type="text" id="accountID" value=""><br>
+
+<button type="button" onclick="accessLog()" >Go!</button>
+<BR>Status:
+<p id="Status">---</p>
+<BR>TransactionLog (Input):
+<p id="AccessLog">---</p>
+<BR>TransactionLog (RAW):
+<p id="TransactionLog">---</p>
+</td>
+
+</tr>
+
+</TABLE>
+
+<script>
+
+var web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8543"));
+
+var minerAccount = "0xfdd7aa0b1bcbb77df50b9ef2a5559808d07396d7";
+
+
+var contract = "";
+
+var contractReadable = ""; //either package1 or package2
+
+var test = web3.toAscii("0xbb7306b8000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a000000000000000000000000000000000000000000000000000000000000000e000000000000000000000000000000000000000000000000000000000000000026564000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000468696869000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000012323031392d342d31302031383a35343a34370000000000000000000000000000");
+
+
+document.getElementById("startBlockNumba").value = web3.eth.blockNumber - 1000;
+document.getElementById("endBlockNumba").value = web3.eth.blockNumber;
+document.getElementById("accountID").value = minerAccount;
+
+var abi = [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        },
+        {
+          "name": "deposit",
+          "type": "uint256"
+        }
+      ],
+      "name": "addCustomerDeposit2List",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+      "signature": "0x0b180d82"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        },
+        {
+          "name": "denomination",
+          "type": "string"
+        }
+      ],
+      "name": "addCustomerDenomination2List",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+      "signature": "0x762ebca9"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        }
+      ],
+      "name": "remove",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+      "signature": "0x80599e4b"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        }
+      ],
+      "name": "getDepositByKey",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xf53d8be3"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        }
+      ],
+      "name": "getDenominationByKey",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xe125a8d0"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        },
+        {
+          "name": "setHotelMessageMode",
+          "type": "string"
+        }
+      ],
+      "name": "customerCheckOutSGD",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x092b2701"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        },
+        {
+          "name": "hotelAdd",
+          "type": "address"
+        },
+        {
+          "name": "setHotelMessageMode",
+          "type": "string"
+        }
+      ],
+      "name": "customerCheckOutETH",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x823c308e"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "deposit",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0xb6b55f25"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getBalance",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x12065fe0"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getSGDBalance",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xb02e46e8"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getSGDEarnings",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x2234a45c"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "setManagerName",
+          "type": "string"
+        },
+        {
+          "name": "setRequiredDepositName",
+          "type": "uint256"
+        },
+        {
+          "name": "setCurrencyDenomination",
+          "type": "string"
+        },
+        {
+          "name": "setPackagePrice",
+          "type": "uint256"
+        },
+        {
+          "name": "setNumofDays",
+          "type": "int256"
+        },
+        {
+          "name": "setNumAndTypeOfRooms",
+          "type": "string"
+        },
+        {
+          "name": "setEarlyBirdDiscount",
+          "type": "uint256"
+        },
+        {
+          "name": "setEarlyBirdEndDate",
+          "type": "uint256"
+        },
+        {
+          "name": "setHotelMessageMode",
+          "type": "string"
+        }
+      ],
+      "name": "set",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0xfb685774"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        },
+        {
+          "name": "paymentDenomination",
+          "type": "string"
+        },
+        {
+          "name": "paymentAmount",
+          "type": "uint256"
+        },
+        {
+          "name": "setHotelMessageMode",
+          "type": "string"
+        }
+      ],
+      "name": "paymentHolding",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0xd962e8e1"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getManagerName",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x33fc093e"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getRequiredDepositName",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xc6657ee4"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getCurrencyDenomination",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x98935f51"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getPackagePrice",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x31f34169"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getNumofDays",
+      "outputs": [
+        {
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x84d48b49"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getNumAndTypeOfRooms",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x2f7f207c"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getEarlyBirdDiscount",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xb265ff8b"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getEarlyBirdEndDate",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x7899a434"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "a",
+          "type": "string"
+        },
+        {
+          "name": "b",
+          "type": "string"
+        }
+      ],
+      "name": "compareStrings",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xbed34bba"
+    }
+  ];
+  
+  var abi2 = [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        },
+        {
+          "name": "deposit",
+          "type": "uint256"
+        }
+      ],
+      "name": "addCustomerDeposit2List",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+      "signature": "0x0b180d82"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        },
+        {
+          "name": "denomination",
+          "type": "string"
+        }
+      ],
+      "name": "addCustomerDenomination2List",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+      "signature": "0x762ebca9"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        }
+      ],
+      "name": "remove",
+      "outputs": [],
+      "payable": false,
+      "stateMutability": "nonpayable",
+      "type": "function",
+      "signature": "0x80599e4b"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        }
+      ],
+      "name": "getDepositByKey",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xf53d8be3"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        }
+      ],
+      "name": "getDenominationByKey",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xe125a8d0"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        },
+        {
+          "name": "setHotelMessageMode",
+          "type": "string"
+        }
+      ],
+      "name": "customerCheckOutSGD",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x092b2701"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        },
+        {
+          "name": "hotelAdd",
+          "type": "address"
+        },
+        {
+          "name": "setHotelMessageMode",
+          "type": "string"
+        }
+      ],
+      "name": "customerCheckOutETH",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x823c308e"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "deposit",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0xb6b55f25"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getBalance",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x12065fe0"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getSGDBalance",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xb02e46e8"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getSGDEarnings",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x2234a45c"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "setManagerName",
+          "type": "string"
+        },
+        {
+          "name": "setRequiredDepositName",
+          "type": "uint256"
+        },
+        {
+          "name": "setCurrencyDenomination",
+          "type": "string"
+        },
+        {
+          "name": "setPackagePrice",
+          "type": "uint256"
+        },
+        {
+          "name": "setNumofDays",
+          "type": "int256"
+        },
+        {
+          "name": "setNumAndTypeOfRooms",
+          "type": "string"
+        },
+        {
+          "name": "setEarlyBirdDiscount",
+          "type": "uint256"
+        },
+        {
+          "name": "setEarlyBirdEndDate",
+          "type": "uint256"
+        },
+        {
+          "name": "setHotelMessageMode",
+          "type": "string"
+        }
+      ],
+      "name": "set",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0xfb685774"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "customerAcct",
+          "type": "string"
+        },
+        {
+          "name": "paymentDenomination",
+          "type": "string"
+        },
+        {
+          "name": "paymentAmount",
+          "type": "uint256"
+        },
+        {
+          "name": "setHotelMessageMode",
+          "type": "string"
+        }
+      ],
+      "name": "paymentHolding",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0xd962e8e1"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getManagerName",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x33fc093e"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getRequiredDepositName",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xc6657ee4"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getCurrencyDenomination",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x98935f51"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getPackagePrice",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x31f34169"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getNumofDays",
+      "outputs": [
+        {
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x84d48b49"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getNumAndTypeOfRooms",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x2f7f207c"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getEarlyBirdDiscount",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xb265ff8b"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getEarlyBirdEndDate",
+      "outputs": [
+        {
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x7899a434"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "a",
+          "type": "string"
+        },
+        {
+          "name": "b",
+          "type": "string"
+        }
+      ],
+      "name": "compareStrings",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xbed34bba"
+    }
+  ];
+
+
+
+function chkContractBalance()
+{
+	var currentValue = (contract.getBalance.call()).toNumber();
+	document.getElementById("contractBalance").innerHTML = "Contract contains ".concat(currentValue/1000000000000000000).concat(" ETH in holdings");
+	
+	var currentValue2 = (contract.getSGDBalance.call()).toNumber();
+	document.getElementById("contractBalanceSGD").innerHTML = "Contract contains ".concat(currentValue2).concat(" SGD in holdings");
+	
+	var currentValue3 = (contract.getSGDEarnings.call()).toNumber();
+	document.getElementById("contractBalanceSGDEarnings").innerHTML = "Contract contains ".concat(currentValue3).concat(" SGD in earnings");
+}
+  
+  
+function myFunction() { 
+  document.getElementById("demo").innerHTML = "Hello JavaScript!" + test;
+  
+
+
+var balanceWei = web3.eth.getBalance(minerAccount).toNumber();
+
+var balance = web3.fromWei(balanceWei, 'ether');
+  
+  document.getElementById("balance").innerHTML = balance.concat(" for account: ", minerAccount);
+  
+  
+  var number = web3.eth.blockNumber;
+  
+document.getElementById("blockNum").innerHTML = "Current Block Number: ".concat(number);
+  
+  
+}
+
+function f_Set2ContractPackage()
+{
+
+  document.getElementById("setContract").innerHTML = document.getElementById("select_path").value;
+   if (document.getElementById("select_path").value == "hotelProp1")
+   {
+      contractReadable = "package1";
+      document.getElementById("setContract").innerHTML = "hotelProp1";
+      var contractAddress = "0xbb8AB393b798605440cAc9C47eeE1117bb9b3156";
+      contract = web3.eth.contract(abi).at(contractAddress);
+
+      document.getElementById("setContract").innerHTML = "Contract successfully set at: ".concat(contractAddress);
+   }
+   else if (document.getElementById("select_path").value == "hotelProp2")
+   {
+      contractReadable = "package2";
+      var contractAddress = "0x853B719fB3CA99CD69d0164989724484F8425A00";
+      contract = web3.eth.contract(abi2).at(contractAddress);
+
+      document.getElementById("setContract").innerHTML = "Contract successfully set at: ".concat(contractAddress);
+   }
+   else
+   {}
+}
+
+
+
+
+
+
+function f_Talk2Contract()
+{
+
+var abi = [
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "x",
+          "type": "int256"
+        }
+      ],
+      "name": "set",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0xe5c19b2d"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "get",
+      "outputs": [
+        {
+          "name": "",
+          "type": "int256"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0x6d4ce63c"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "userID",
+          "type": "string"
+        },
+        {
+          "name": "secretMsg",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string"
+        },
+        {
+          "name": "purposeIn",
+          "type": "string"
+        }
+      ],
+      "name": "writeTransacSecret",
+      "outputs": [],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x3e5c547e"
+    },
+    {
+      "constant": false,
+      "inputs": [
+        {
+          "name": "userID",
+          "type": "string"
+        },
+        {
+          "name": "timestamp",
+          "type": "string"
+        },
+        {
+          "name": "purposeIn",
+          "type": "string"
+        }
+      ],
+      "name": "viewTransacSecret",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": true,
+      "stateMutability": "payable",
+      "type": "function",
+      "signature": "0x24273ad0"
+    },
+    {
+      "constant": true,
+      "inputs": [],
+      "name": "getstoredSecretData",
+      "outputs": [
+        {
+          "name": "",
+          "type": "string"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xba66de68"
+    },
+    {
+      "constant": true,
+      "inputs": [
+        {
+          "name": "a",
+          "type": "string"
+        },
+        {
+          "name": "b",
+          "type": "string"
+        }
+      ],
+      "name": "compareStrings",
+      "outputs": [
+        {
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "payable": false,
+      "stateMutability": "view",
+      "type": "function",
+      "signature": "0xbed34bba"
+    }
+  ];
+
+var contractAddress = "0x153Bb11bB12B2e0A9A1B375ECc335Ce1c03FC823";
+contract = web3.eth.contract(abi).at(contractAddress);
+
+document.getElementById("setContract").innerHTML = "Contract successfully set at: ".concat(contractAddress);
+
+
+
+
+}//f_Talk2Contract
+
+
+
+function set()
+{
+
+
+  
+var localABI = null;
+
+if (contractReadable == "package1")
+{
+	localABI = abi;
+}
+else if (contractReadable == "package2")
+{
+	localABI = abi2;
+}
+else{}  
+
+
+
+
+var strDate = document.getElementById("setEarlyBirdEndDate").value;
+
+  document.getElementById("setVal").innerHTML = "Hello JavaScript!";
+
+var res = strDate.split("/");
+
+
+
+  
+var d = new Date();
+d.setFullYear(res[2], res[1], res[0]); 
+
+  
+let date = (d).getTime();
+let birthDateInUnixTimestamp = date / 1000;
+
+  
+ var setManagerName = document.getElementById("setManagerName").value;
+  var setRequiredDepositName = document.getElementById("setRequiredDepositName").value;
+  var setCurrencyDenomination = document.getElementById("setCurrencyDenomination").value;
+  var setPackagePrice = document.getElementById("setPackagePrice").value;
+  var setNumofDays = document.getElementById("setNumofDays").value;
+  var setNumAndTypeOfRooms = document.getElementById("setNumAndTypeOfRooms").value;
+  var setEarlyBirdDiscount = document.getElementById("setEarlyBirdDiscount").value; 
+  
+
+  var setEarlyBirdEndDate = birthDateInUnixTimestamp;
+  
+//here cannot
+  
+  if (setCurrencyDenomination != "ETH")
+  {
+	setRequiredDepositName = setRequiredDepositName * 100; //assume 2 decimal place is the most, solidity can only store int
+	setPackagePrice = setPackagePrice * 100;
+  }
+  
+  document.getElementById("setVal").innerHTML = "Hello JavaScript222!";
+  
+  //var textBoxVal = document.getElementById("setValtxtbox").value;
+  //contract.set.sendTransaction(textBoxVal, { from: web3.eth.accounts[0], gas: 4000000 });
+// 
+   contract.set.sendTransaction(setManagerName,setRequiredDepositName,setCurrencyDenomination,setPackagePrice,setNumofDays,setNumAndTypeOfRooms,setEarlyBirdDiscount,setEarlyBirdEndDate,"Set Package Parameters",{ from: web3.eth.accounts[0], gas: 4000000 });
+
+	document.getElementById("setVal").innerHTML = "Contract successfully set";
+  
+}// set
+	
+
+
+function accessLog()
+{
+document.getElementById("Status").innerHTML = "start";
+getTransactionsByAccount(document.getElementById("accountID").value,document.getElementById("startBlockNumba").value,document.getElementById("endBlockNumba").value);
+document.getElementById("Status").innerHTML = "end";
+}
+
+function getTransactionsByAccount(myaccount, startBlockNumber, endBlockNumber) {
+document.getElementById("Status").innerHTML = "getTransactionsByAccount";
+  var textDataTransactRaw = "";
+  var whoWasHere = "";
+
+  if (endBlockNumber == null) {
+    endBlockNumber = web3.eth.blockNumber;
+    //console.log("Using endBlockNumber: " + endBlockNumber);
+  }
+  if (startBlockNumber == null) {
+    startBlockNumber = endBlockNumber - 1000;
+    //console.log("Using startBlockNumber: " + startBlockNumber);
+  }
+	//console.log("Searching for transactions to/from account \"" + myaccount + "\" within blocks "  + startBlockNumber + " and " + endBlockNumber);
+
+  for (var i = startBlockNumber; i <= endBlockNumber; i++) {
+    if (i % 1000 == 0) {
+      //console.log("Searching block " + i);
+    }
+    var block = web3.eth.getBlock(i, true);
+	document.getElementById("Status").innerHTML = i;
+    if (block != null && block.transactions != null) {
+      block.transactions.forEach( function(e) {
+        if (myaccount == "*" || myaccount == e.from || myaccount == e.to) {
+          textDataTransactRaw = textDataTransactRaw + "  tx hash          : " + e.hash + "<BR>"
+            + "   nonce           : " + e.nonce + "<BR>"
+            + "   blockHash       : " + e.blockHash + "<BR>"
+            + "   blockNumber     : " + e.blockNumber + "<BR>"
+            + "   transactionIndex: " + e.transactionIndex + "<BR>"
+            + "   from            : " + e.from + "<BR>" 
+            + "   to              : " + e.to + "<BR>"
+            + "   value           : " + e.value + "<BR>"
+            + "   time            : " + block.timestamp + " " + (new Date(block.timestamp * 1000)).toGMTString() + "<BR>"
+            + "   gasPrice        : " + e.gasPrice + "<BR>"
+            + "   gas             : " + e.gas + "<BR>"
+            + "   input           : " + e.input + "<BR>"
+			+ "-------------------------------------<BR>";
+			
+		whoWasHere = whoWasHere + web3.toAscii(e.input)  + " -- transactionID: " + e.hash + "<BR>";
+        }
+      })
+    }
+  }
+  
+  document.getElementById("AccessLog").innerHTML = whoWasHere;
+  document.getElementById("TransactionLog").innerHTML = textDataTransactRaw;
+  
+}
+
+</script>
+
+</body>
+</html>
