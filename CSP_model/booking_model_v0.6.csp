@@ -1,0 +1,425 @@
+/*
+This model demonstrates the execution of smart contract, and the parties that interact with the smart contract on the Ethereum platform.
+Suppose that a "request" contract has been deployed by a traveler. The following describes the role of each party:
+
+	Request: a smart contract which acts as an intermediary between different addresses
+	Travler: any address that is willing to book a hotel room with the deployed request
+	Hotelier: any address that proposes an agreement with the request
+	Miner: any address that solves the puzzle by proof of work and decide which transaction to be included in the next block
+
+Note that some miners may execute transactions with a higher gasPrice; some would choose to take another strategy to build a block.
+It is reasonable to assume that the smart contract has been deployed with some amount of deposit from the traveler and waiting for some hoteliers to search for.
+*/
+
+enum {off, on, switchOp, proposeOp, fetchOp, settleOp, proposedFrom, Function, ProposeFunction, settled, na, proposed, SwitchFunction, FetchFunction, SettleFunction, newcomer};
+#define C 5; // # of hoteliers or travelers
+#define M 2; // # of miners
+#define chainSize 5; // The length of each blockchain
+#define maxTx 20; // The maximum number of transaction for each block
+#define blkGasLimit 20000; // The maximum gas limit for each block, which is calculated from a bunch of transactions wiht gas limit
+#define channelBufferSize 5;
+#define succAppendPrice 1000000; // reward for successfully appending the valid block
+#define contractAddr 9494; // smart contract address
+#define INIT 10; // gas consumption in terms of opcode
+#define FETCH 10; // gas consumption in terms of opcode
+#define TRANSFER 500; // gas consumption in terms of opcode
+#define UPDATE 100; // gas consumption in terms of opcode
+#define gasLimit 1000; // gas consumption limit per transaction
+#define gasPriceCondition 3; // miner's selection of gas price per transaction
+#define contractOwner 2; // the smart contract's owner address
+#define poolSize 100; // pool size to receive transactions for each miner
+#define proposalPoolSize 10; // pool size for received proposals
+#define dataSize 100;
+
+var rewardCount; // testing how many times the reward has been given to a miner; Only one of the miners receives a reward on successfully mining a new block
+var userWallet[M][C] = [1000000000(M*C)];
+var proposalFrom[M][proposalPoolSize];
+var proposal[M][proposalPoolSize];
+var proposalPtr[M];
+var settledWith[M];
+var contractBalance = [1000000(M)];
+var contractSwitch = [on(M)];
+var lockedWallet[M]; // temperary wallet to lock up some of a user's wallet
+var estimatedGas[M][maxTx]; // gas consumption until now
+var minerCoinbase[M]; // each miner has their coinbase
+var blockNum[M]; // blockNum for each miner
+
+var pendUid[M][maxTx];
+var pendFromAddr[M][maxTx];
+var pendToAddr[M][maxTx];
+var pendOp[M][maxTx];
+var pendField[M][maxTx];
+var pendState[M][maxTx];
+var pendValue[M][maxTx]; //
+var chain[M][chainSize]; // a mapping from blockNum to blockUid
+var block[dataSize][maxTx]; // a mapping from blockUid to txUid
+
+// each tx has the following information, and they are globally shared to save some memory used
+var txUid = 1;
+var blockUid = 1;
+var txFromAddr[dataSize];
+var txToAddr[dataSize];
+var txOp[dataSize];
+var txField[dataSize];
+var txState[dataSize];
+var txValue[dataSize];
+
+// the following is a pool of transactions
+var poolTxAddr[M][poolSize];
+var poolTxVal[M][poolSize];
+var poolTxGas[M][poolSize];
+var poolTxGasPrice[M][poolSize];
+var poolTxFunction[M][poolSize];
+var poolPtr[M];
+var inPoolPtr[M];
+
+// the following is a block of transactions
+var blkTxAddr[M][maxTx];
+var blkTxVal[M][maxTx];
+var blkTxGas[M][maxTx];
+var blkTxGasPrice[M][maxTx];
+var blkTxFunction[M][maxTx];
+var blkTotalGas[M];
+var blkSize[M];
+
+
+// below is the channels for sending data
+channel mnet[M] channelBufferSize;
+channel bnet[M] channelBufferSize;
+channel listen[C] channelBufferSize;
+channel datach[M] channelBufferSize;
+
+// on the user'side, invoking a function
+User(addr, val, gas, gasPrice, function) =
+	TxBrdcst(0, addr, val, gas, gasPrice, function);
+
+Listener(addr) = listen[addr]?function -> listenerReceiving -> User(addr, 0, gasLimit, 5, function); // an user interface that listens to the state change
+
+TxBrdcst(iter, addr, val, gas, gasPrice, function) = // broadcasting a transaction
+	atomic{
+		if (iter < M) {
+			mnet[iter]!addr.val.gas.gasPrice.function ->
+			TxBrdcst(iter+1, addr, val, gas, gasPrice, function)
+		} else {
+			Skip
+		}
+	};
+
+TxPool(i) = // inserting new transactions into the pool
+	mnet[i]?addr.val.gas.gasPrice.function ->
+	if (userWallet[i][addr] >= (val + (gas * gasPrice)) && gas > 0) { // a checkpoint on whether or not the sender has enough funds and gas before a miner accepts the transaction
+		TxInsert(i, addr, val, gas, gasPrice, function)
+	} else {
+		TxPool(i)
+	};
+
+TxInsert(i, addr, val, gas, gasPrice, function) =
+	if (poolPtr[i] < poolSize) {
+		if (poolTxGas[i][poolPtr[i]] == 0) {
+			txReceive{
+				var ptr = poolPtr[i];
+				poolTxAddr[i][ptr] = addr;
+				poolTxVal[i][ptr] = val;
+				poolTxGas[i][ptr] = gas;
+				poolTxGasPrice[i][ptr] = gasPrice;
+				poolTxFunction[i][ptr] = function;
+				poolPtr[i]++;
+			}
+			->
+			datach[i]!newcomer
+			->
+			TxPool(i)
+		} else {
+			next{poolPtr[i]++;} ->
+			TxInsert(i, addr, val, gas, gasPrice, function)
+		}
+	} else {
+		next{poolPtr[i] = 0;} ->
+		TxInsert(i, addr, val, gas, gasPrice, function)
+	};
+
+TxBlock(i) = // including available transactions from the pool
+	if (inPoolPtr[i] < poolSize) {
+		if (!call(cempty, datach[i])) {
+			datach[i]?newcomer ->
+			if (poolTxGas[i][inPoolPtr[i]] == 0) { // zero indicates no more available transactions
+				if (blkSize[i] >= 1) {
+					Miner(i, 0)
+				} else {
+					TxBlock(i)
+				}
+			} else {
+				if (blkTotalGas[i] + poolTxGas[i][inPoolPtr[i]] <= blkGasLimit) { // the total gas consumption limit for each miner
+					if (poolTxGasPrice[i][inPoolPtr[i]] >= gasPriceCondition) { // find the transactions which meets the gasPrice minimum
+						txInclude{
+							var pIter = inPoolPtr[i];
+							var bIter = blkSize[i];
+							blkTxAddr[i][bIter] = poolTxAddr[i][pIter];
+							blkTxVal[i][bIter] = poolTxVal[i][pIter];
+							blkTxGas[i][bIter] = poolTxGas[i][pIter];
+							blkTxGasPrice[i][bIter] = poolTxGasPrice[i][pIter];
+							blkTxFunction[i][bIter] = poolTxFunction[i][pIter];
+							blkTotalGas[i] = blkTotalGas[i] + poolTxGas[i][pIter];
+							poolTxAddr[i][pIter] = 0;
+							poolTxVal[i][pIter] = 0;
+							poolTxGas[i][pIter] = 0;
+							poolTxGasPrice[i][pIter] = 0;
+							poolTxFunction[i][pIter] = 0;
+							inPoolPtr[i]++;
+							blkSize[i]++;
+						} ->
+						TxBlock(i)
+					} else {
+						nextTx{inPoolPtr[i]++;}
+						->
+						TxBlock(i)
+					}
+				} else if (blkSize[i] >= 1) {
+					Miner(i, 0)
+				} else {
+					nextTx{inPoolPtr[i]++;}
+					->
+					TxBlock(i)
+				}
+			}
+		} else if (blkSize[i] >= 1) {
+			Miner(i, 0)
+		} else {
+			TxBlock(i)
+		}
+	} else {
+		nextTx{inPoolPtr[i] = 0;}
+		->
+		TxBlock(i)
+	};
+
+Miner(i, iter) = // start mining the block where transactions were collected
+	if (iter < blkSize[i]) {
+		LockUp(i, iter)
+	} else {
+		BlkUpdate(i, 0)
+	};
+
+Execution(i, iter) = consumed ->
+	execution{
+		pendUid[i][iter] = txUid;
+		pendFromAddr[i][iter] = blkTxAddr[i][iter];
+		pendToAddr[i][iter] = contractAddr;
+		pendOp[i][iter] = blkTxFunction[i][iter];
+		pendField[i][iter] = na;
+		pendState[i][iter] = 1;
+		pendValue[i][iter] = blkTxVal[i][iter];
+		txUid++;
+	} -> LockedReturn(i, iter, true);
+
+LockUp(i, iter) = // to lock up the total value including the gas to execute the transaction from a user
+	weiLockUp{
+		var addr = blkTxAddr[i][iter];
+		var val = blkTxVal[i][iter];
+		var gas = blkTxGas[i][iter];
+		var gasPrice = blkTxGasPrice[i][iter];
+		var lockedTotal = val + (gas * gasPrice);
+		userWallet[i][addr] = userWallet[i][addr] - lockedTotal;
+		lockedWallet[i] = lockedTotal;
+	} ->
+	TxExec(i, iter);
+
+
+TxExec(i, iter) = // acting like invoking predefined functions in the smart contract; here just dispatch the execution for each of the functions
+	case {
+		blkTxFunction[i][iter] == SwitchFunction:
+			if (contractOwner == blkTxAddr[i][iter]) {
+				GasConsume(i, iter, UPDATE) || Execution(i, iter)
+			} else {
+				LockedReturn(i, iter, false)
+			}
+		blkTxFunction[i][iter] == ProposeFunction:
+			if (contractSwitch[i] == on) {
+				GasConsume(i, iter, UPDATE) || Execution(i, iter)
+			} else {
+				LockedReturn(i, iter, false)
+			}
+		blkTxFunction[i][iter] == SettleFunction:
+			if (contractOwner == blkTxAddr[i][iter]) {
+				GasConsume(i, iter, UPDATE + TRANSFER) || Execution(i, iter)
+			} else {
+				LockedReturn(i, iter, false)
+			}
+		blkTxFunction[i][iter] == FetchFunction:
+			if (contractOwner == blkTxAddr[i][iter]) {
+				GasConsume(i, iter, FETCH) || Execution(i, iter)
+			} else {
+				LockedReturn(i, iter, false)
+			}
+	};
+
+
+
+GasConsume(i, iter, opcode) =
+	if (estimatedGas[i][iter] + opcode > blkTxGas[i][iter]) {
+		ExecFail(i, iter)
+	} else {
+		consuming{
+			var gasPrice = blkTxGasPrice[i][iter];
+			var price = opcode * gasPrice;
+			minerCoinbase[i] = minerCoinbase[i] + price;
+			lockedWallet[i] = lockedWallet[i] - price;
+			estimatedGas[i][iter] = estimatedGas[i][iter] + opcode;
+		} -> consumed -> Skip
+	};
+
+ExecFail(i, iter) =
+	lockedReset{
+		lockedWallet[i] = 0;
+	} -> BlkDetect(i, iter, false);
+
+LockedReturn(i, iter, success) = // return the remaining gas to the user
+	returnGas{
+		var addr = blkTxAddr[i][iter];
+		var return = (blkTxGas[i][iter] - estimatedGas[i][iter]) * blkTxGasPrice[i][iter];
+		userWallet[i][addr] = userWallet[i][addr] + return;
+		lockedWallet[i] = 0;
+	} ->
+	BlkDetect(i, iter, success);
+
+BlkDetect(i, iter, success) = // before executing the next transaction, check whether there is any block from another miner. Under assumption that the miner chooses the first arrival block
+	if (call(cempty, bnet[i])) {
+		Miner(i, iter+1)
+	} else {
+		bnet[i]?j.newBlockNum.blockid -> BlkAppend(i, j, newBlockNum, blockid)
+	};
+
+Reset(i, iter) = // clear the container and reuse the container for newly created transactions
+	if (iter < blkSize[i]) {
+		clearTx{
+			pendUid[i][iter] = 0;
+			pendFromAddr[i][iter] = 0;
+			pendToAddr[i][iter] = 0;
+			pendOp[i][iter] = 0;
+			pendField[i][iter] = 0;
+			pendState[i][iter] = 0;
+			pendValue[i][iter] = 0;
+			blkTxAddr[i][iter] = 0;
+			blkTxVal[i][iter] = 0;
+			blkTxGas[i][iter] = 0;
+			blkTxGasPrice[i][iter] = 0;
+			blkTxFunction[i][iter] = 0;
+			estimatedGas[i][iter] = 0;
+		} ->
+		Reset(i, iter+1)
+	} else {
+		clearBlk{
+			blkTotalGas[i] = 0;
+			blkSize[i] = 0;
+		} ->
+		TxBlock(i)
+	};
+
+BlkAppend(i, j, newBlockNum, blockid) = // append the latest block and update the state in the blockchain
+	append{
+		chain[i][newBlockNum] = blockid;
+		blockNum[i]++;
+		blkSize[i] = blkSize[j];
+	} ->
+	ChainUpdate(i, 0, blockid);
+
+ChainUpdate(i, iter, blockid) = // update their own chain
+	if (iter < blkSize[i]) {
+		case {
+			txOp[block[blockid][iter]] == FetchFunction:
+				fetch ->
+				ChainUpdate(i, iter+1, blockid)
+			txOp[block[blockid][iter]] == SwitchFunction:
+				switch{
+					var id = block[blockid][iter];
+					if (contractSwitch[i] == off) {
+						contractSwitch[i] = on;
+					} else {
+						contractSwitch[i] = off;
+					}
+				} ->
+				ChainUpdate(i, iter+1, blockid)
+			txOp[block[blockid][iter]] == ProposeFunction:
+				propose{
+					var id = block[blockid][iter];
+					var addr = txFromAddr[id];
+					var data = txState[id];
+					var ptr = proposalPtr[i];
+					proposalFrom[i][ptr] = addr;
+					proposal[i][ptr] = data;
+					proposalPtr[i]++;
+				} ->
+				ChainUpdate(i, iter+1, blockid)
+			txOp[block[blockid][iter]] == SettleFunction:
+				settle{
+					var id = block[blockid][iter];
+					var addr = txFromAddr[id];
+					var data = txState[id];
+					settledWith[i] = data;
+					userWallet[i][data] = userWallet[i][data] + txValue[id];
+				} ->
+				ChainUpdate(i, iter+1, blockid)
+
+		}
+	} else {
+		Reset(i, 0)
+	};
+
+BlkBrdcst(i, iter, newBlockNum, blockid) = // broadcasting the mined block to other miners
+	if (i == iter && iter < M) {
+		BlkBrdcst(i, iter+1, newBlockNum, blockid)
+	} else if (iter < M) {
+		bnet[iter]!i.newBlockNum.blockid ->
+		BlkBrdcst(i, iter+1, newBlockNum, blockid)
+	} else {
+		updateBlockUid{blockUid++;} ->
+		BlkAppend(i, i, newBlockNum, blockid)
+	};
+
+BlkUpdate(i, iter) = // update the globally shared state
+	if (iter < blkSize[i]) {
+		update{
+			block[blockUid][iter] = pendUid[i][iter];
+			txFromAddr[pendUid[i][iter]] = pendFromAddr[i][iter];
+			txToAddr[pendUid[i][iter]] = pendToAddr[i][iter];
+			txOp[pendUid[i][iter]] = pendOp[i][iter];
+			txField[pendUid[i][iter]] = pendField[i][iter];
+			txState[pendUid[i][iter]] = pendState[i][iter];
+		} ->
+		BlkUpdate(i, iter+1)
+	} else {
+		reward{minerCoinbase[i] = minerCoinbase[i] + succAppendPrice; rewardCount++;} ->
+		BlkBrdcst(i, 0, blockNum[i], blockUid)
+	};
+
+ProposerExecution =
+	User(1, 0, gasLimit, 5, ProposeFunction) ||| (|||i:{0..M-1} @ (TxPool(i) ||| TxBlock(i)));
+
+UnavailableExecution =
+	User(contractOwner, 0, gasLimit, 5, SwitchFunction) ||| (|||i:{0..M-1} @ (TxPool(i) ||| TxBlock(i)));
+
+NotOwnerExecution =
+	User(0, 0, gasLimit, 5, FetchFunction) ||| (|||i:{0..M-1} @ (TxPool(i) ||| TxBlock(i)));
+
+MultipleUsersExecution =
+	(|||i:{0..C-1} @ User(i, 0, gasLimit, 5, ProposeFunction)) ||| (|||i:{0..M-1} @ (TxPool(i) ||| TxBlock(i)));
+
+SettlementExecution =
+	User(contractOwner, 200, gasLimit, 5, SettleFunction) ||| (|||i:{0..M-1} @ (TxPool(i) ||| TxBlock(i)));
+
+ListenerExecution =
+	User(1, 0, gasLimit, 5, ProposeFunction) ||| Listener(contractOwner) ||| (|||i:{0..M-1} @ (TxPool(i) ||| TxBlock(i)));
+
+#define GasRunOut (estimatedGas[0][0] > gasLimit);
+#define sameBlockNumEventually (&&i:{0..M-1} @ blockNum[i] == 1);
+#define receiveSettlement (&&i:{0..M-1} @ settledWith[i] == 1);
+#define proposalReceived (proposalPtr[0] >= 1);
+
+#assert ProposerExecution deadlockfree;
+#assert ProposerExecution |= []!GasRunOut; // enough gas to the execution of a transaction by miners
+#assert ProposerExecution reaches sameBlockNumEventually; // each miner reaches the same block number in the blockchain with merely one transaction
+#assert ListenerExecution |= proposalReceived -> listenerReceiving; // listening to the proposals arrival and fetch them
+#assert UnavailableExecution |= []!proposalReceived; // contract turned off, and cannot accept any proposals
+#assert NotOwnerExecution |= []!fetch; // only the owner can fetch the data in the smart contract
+#assert MultipleUsersExecution reaches sameBlockNumEventually; // each miner reaches the same block number in the blockchain with multiple transactions
+#assert SettlementExecution reaches receiveSettlement; // one of the propsers receives the settlement
